@@ -11,5 +11,11 @@ export const DATA_TABLE_HEADERS = [
   "Currency",
   "Country",
 ];
-export const FILTER_TYPES = ["online", "contactless", "chip", "swipe", "atm"];
+export const FILTER_TYPES = [
+  "online",
+  "contactless",
+  "chip_and_pin",
+  "swipe",
+  "atm",
+];
 export const PAGINATION_OPTIONS = [25, 50, 75, 100];

@@ -334,22 +334,50 @@ function evaluateManySmalls(
   };
 }
 
+// function evaluateUnusualType(
+//   tx: Transaction,
+//   _fv: FeatureVector | undefined,
+//   params: RuleParamValues
+// ) {
+//   const usualTypes: string[] = (params?.usualTypes as string[]) || [
+//     "online",
+//     "contactless",
+//   ];
+//   const fired = !inSet(tx?.transaction_type, usualTypes);
+//   return {
+//     fired,
+//     reasons: [
+//       fired
+//         ? `type ${tx?.transaction_type} ∉ usualTypes`
+//         : `type ${tx?.transaction_type} ∈ usualTypes`,
+//     ],
+//     facts: { transaction_type: tx.transaction_type, usualTypes },
+//   };
+// }
+
 function evaluateUnusualType(
   tx: Transaction,
   _fv: FeatureVector | undefined,
   params: RuleParamValues
 ) {
-  const usualTypes: string[] = (params?.usualTypes as string[]) || [
+  const selected = (params?.usualTypes as string[] | undefined) ?? [
     "online",
     "contactless",
   ];
-  const fired = !inSet(tx?.transaction_type, usualTypes);
+
+  // If 'all' is present, treat it as all known types
+  const usualTypes = selected.includes("all")
+    ? ["online", "contactless", "chip_and_pin", "swipe", "atm"]
+    : selected;
+
+  const fired = !inSet(tx.transaction_type, usualTypes);
+
   return {
     fired,
     reasons: [
       fired
-        ? `type ${tx?.transaction_type} ∉ usualTypes`
-        : `type ${tx?.transaction_type} ∈ usualTypes`,
+        ? `type ${tx.transaction_type} ∉ usualTypes`
+        : `type ${tx.transaction_type} ∈ usualTypes`,
     ],
     facts: { transaction_type: tx.transaction_type, usualTypes },
   };
@@ -485,8 +513,18 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
         key: "usualTypes",
         label: "Usual Types",
         type: "multiselect",
-        options: ["online", "contactless", "chip", "swipe", "atm"],
-        default: ["online", "contactless"],
+        options: [
+          "all",
+          "online",
+          "contactless",
+          "chip_and_pin",
+          "swipe",
+          "atm",
+        ],
+        // options: ["online", "contactless", "chip_and_pin", "swipe", "atm"],
+        // options: ["online", "contactless", "chip", "swipe", "atm"],
+        // default: ["online", "contactless"],
+        default: ["all"],
       },
     ],
     evaluator: evaluateUnusualType,

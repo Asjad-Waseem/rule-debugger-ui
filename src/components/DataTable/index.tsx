@@ -39,11 +39,12 @@ const DataTable = () => {
         if (!inText) return false;
       }
 
-      if (
-        filters?.type &&
-        r?.tx?.transaction_type?.toLowerCase() !== filters?.type?.toLowerCase()
-      )
-        return false;
+      if (filters?.type && filters.type !== "all") {
+        if (
+          r?.tx?.transaction_type?.toLowerCase() !== filters.type.toLowerCase()
+        )
+          return false;
+      }
 
       if (
         filters?.country &&
@@ -66,6 +67,7 @@ const DataTable = () => {
 
   const goto = (p: number) =>
     dispatch(setPage(Math?.min(Math?.max(1, p), totalPages)));
+  const ALL_PLUS_TYPES = ["all", ...FILTER_TYPES];
 
   return (
     <section className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-0 mb-5 pb-0">
@@ -79,14 +81,14 @@ const DataTable = () => {
           />
           <select
             className="input w-40"
-            value={filters?.type ?? ""}
-            onChange={(e) =>
-              dispatch(setFilters({ type: e?.target?.value || undefined }))
-            }
+            value={filters?.type}
+            onChange={(e) => dispatch(setFilters({ type: e.target.value }))} // ← keep it simple
           >
-            <option value="">All Types</option>
-            {FILTER_TYPES?.map((filterType) => (
-              <option key={filterType}>{filterType}</option>
+            <option value="all">All Types</option>
+            {FILTER_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
             ))}
           </select>
           <select
